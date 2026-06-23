@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tłumacz na żywo – Szkoła Metodologiczna UŚ</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header>
+    <div class="brand">
+      <h1>Tłumacz na żywo</h1>
+      <p>Szkoła Metodologiczna&nbsp;UŚ&nbsp;·&nbsp;PL → EN</p>
+    </div>
+  </header>
+
+  <div class="role-wrap">
+    <p class="lede">
+      Tłumaczenie na żywo wypowiedzi prowadzącego na napisy w języku angielskim.
+      Wybierz swoją rolę.
+    </p>
+
+    <div class="role-cards">
+      <a class="role-card" href="speaker.html">
+        <div class="icon">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 14a3 3 0 0 0 3-3V5a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3z"/><path d="M17 11a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.92V21h2v-3.08A7 7 0 0 0 19 11h-2z"/></svg>
+        </div>
+        <h2>Mówca</h2>
+        <p>Mówisz po polsku. Telefon rozpoznaje mowę, tłumaczy i rozsyła napisy do słuchaczy.</p>
+        <span class="cta">Otwórz ekran mówcy →</span>
+      </a>
+
+      <a class="role-card" href="listener.html">
+        <div class="icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg>
+        </div>
+        <h2>Słuchacz</h2>
+        <p>Czytasz tłumaczenie na żywo. Duże napisy po angielsku, opcjonalnie z oryginałem.</p>
+        <span class="cta">Otwórz ekran słuchacza →</span>
+      </a>
+    </div>
+
+    <div id="configWarn"></div>
+  </div>
+
+  <p class="hint">
+    Najlepiej działa w przeglądarce Chrome (Android / komputer). Rozpoznawanie mowy
+    wymaga Chrome. Ten sam link otwiera oboje – wystarczy wybrać rolę.
+  </p>
+
+  <script src="js/config.js"></script>
+  <script>
+    // Dyskretne ostrzeżenie, jeśli klucze Supabase nie zostały jeszcze wklejone.
+    (function () {
+      var c = window.APP_CONFIG || {};
+      var notSet = !c.SUPABASE_URL || c.SUPABASE_URL.indexOf('TWOJ_') === 0 ||
+                   !c.SUPABASE_ANON_KEY || c.SUPABASE_ANON_KEY.indexOf('TWOJ_') === 0;
+      if (notSet) {
+        document.getElementById('configWarn').innerHTML =
+          '<div class="config-warn">⚠ Klucze Supabase nie są jeszcze ustawione. ' +
+          'Otwórz <b>js/config.js</b> i wklej <b>SUPABASE_URL</b> oraz ' +
+          '<b>SUPABASE_ANON_KEY</b> z panelu Supabase. Bez nich tłumaczenie nie ' +
+          'dotrze do słuchaczy.</div>';
+      }
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mówca · Tłumacz na żywo</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header>
+    <div class="brand">
+      <h1>Tłumacz na żywo · Mówca</h1>
+      <p>Szkoła Metodologiczna&nbsp;UŚ&nbsp;·&nbsp;PL → EN</p>
+    </div>
+    <div class="toggle-group" role="group" aria-label="Jakość tłumaczenia">
+      <button id="q-lower" class="active" type="button" onclick="setQuality('lower')">Lower · free</button>
+      <button id="q-higher" type="button" onclick="setQuality('higher')">Higher · Claude</button>
+    </div>
+  </header>
+
+  <main class="speaker">
+    <div>
+      <div class="panel-label live"><span class="dot"></span>Rozpoznana mowa (polski)</div>
+      <div class="source" id="source"><span class="placeholder">Tu pojawi się to, co usłyszy mikrofon…</span></div>
+    </div>
+
+    <div class="output-wrap">
+      <div class="panel-label">Wysłane tłumaczenie (English)</div>
+      <div class="output" id="output"><span class="placeholder">Tu pojawi się tłumaczenie wysyłane do słuchaczy.</span></div>
+    </div>
+
+    <div class="status-panel" id="statusPanel">
+      <span class="stat">Źródło: <b><span class="val" id="srcVal">—</span></b></span>
+      <span class="stat">Błędy: <b><span class="val" id="errVal">0</span></b></span>
+      <span class="stat">Słuchacze: <b><span class="val" id="listenerVal">0</span></b></span>
+      <span class="stat conn off" id="conn"><span class="dot"></span><span id="connText">rozłączono</span></span>
+    </div>
+  </main>
+
+  <footer class="speaker">
+    <button class="btn" id="micBtn" type="button" onclick="toggleMic()">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 14a3 3 0 0 0 3-3V5a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3z"/><path d="M17 11a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.92V21h2v-3.08A7 7 0 0 0 19 11h-2z"/></svg>
+      <span id="micLabel">Start</span>
+    </button>
+    <button class="btn ghost" id="clearBtn" type="button" onclick="clearListeners()">Wyczyść</button>
+    <div class="api-key-row" id="apiKeyRow">
+      <input type="password" id="apiKey" placeholder="Klucz API Anthropic (sk-ant-…) — tylko tryb Higher">
+    </div>
+    <div class="status-msg" id="status">Gotowy</div>
+  </footer>
+  <p class="hint" id="hint">
+    Użyj Chrome (Android / komputer). Mów wyraźnie, mikrofon blisko ust.
+    Powtarzaj pytania z sali do mikrofonu, zanim odpowiesz.
+  </p>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/config.js"></script>
+  <script src="js/translate.js"></script>
+  <script src="js/speaker.js"></script>
+</body>
+</html>
