@@ -122,7 +122,8 @@ Na Vercel (HTTPS, prawdziwa domena) tryb Higher (Claude) działa bez problemu CO
 ## 5. Tuż przed warsztatem (skrót checklisty)
 
 - **Obudź projekt Supabase** – darmowy tier usypia po ~7 dniach bezczynności
-  (wejście do panelu lub otwarcie apki budzi go w ~30–60 s).
+  (wejście do panelu lub otwarcie apki budzi go w ~30–60 s). Możesz to
+  zautomatyzować – patrz sekcja 6 niżej.
 - Otwórz `speaker.html` na telefonie, `listener.html` na drugim urządzeniu –
   powiedz jedno zdanie, potwierdź, że dociera.
 - **Porównaj Lingva vs MyMemory** na kilku swoich typowych zdaniach i ustaw
@@ -130,6 +131,24 @@ Na Vercel (HTTPS, prawdziwa domena) tryb Higher (Claude) działa bez problemu CO
 - Test długiej sesji (~5 min ciągłej mowy) – STT auto-restartuje się w tle.
 - Mikrofon blisko ust (kieszeń / lavalier / mównica) – to klucz do jakości STT.
 - Powtarzaj pytania z sali do mikrofonu, zanim odpowiesz.
+
+---
+
+## 6. (Opcjonalnie) Keep-alive – „ustaw i zapomnij"
+
+Żeby nie budzić Supabase ręcznie, w repo jest workflow GitHub Actions
+**`.github/workflows/supabase-keepalive.yml`**, który co 5 dni wysyła jedno
+żądanie do projektu. Jest **niezależny od apki**.
+
+Konfiguracja (raz): GitHub → repo → **Settings → Secrets and variables →
+Actions → New repository secret**, dodaj:
+
+- `SUPABASE_URL` = `https://xxxx.supabase.co`
+- `SUPABASE_ANON_KEY` = `eyJ…`
+
+Możesz też odpalić go ręcznie w zakładce **Actions** („Run workflow"), by od
+razu sprawdzić, że działa. Nie wchodzi w drogę apce – jeśli go nie potrzebujesz,
+po prostu usuń ten plik.
 
 ---
 

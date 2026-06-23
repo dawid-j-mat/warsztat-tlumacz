@@ -1,0 +1,70 @@
+# =============================================================================
+#  Supabase keep-alive (sekcja 5 specyfikacji)
+# =============================================================================
+#  Darmowy projekt Supabase usypia po ~7 dniach bezczynności. Ten workflow co
+#  5 dni wysyła JEDNO żądanie do projektu, żeby go nie uśpić.
+#
+#  Jest CAŁKOWICIE NIEZALEŻNY od apki (statyczna strona nie ma „życia" w tle).
+#  Dołożony świadomie — usuń ten plik, jeśli apka nie wchodzi do regularnego
+#  użytku.
+#
+#  KONFIGURACJA (raz):
+#    GitHub → repo → Settings → Secrets and variables → Actions → New secret
+#      • SUPABASE_URL       = https://xxxx.supabase.co   (jak w js/config.js)
+#      • SUPABASE_ANON_KEY  = eyJ…                        (klucz anon public)
+#    Bez tych sekretów workflow zatrzyma się z czytelnym komunikatem.
+#
+#  Ręczne uruchomienie: zakładka Actions → ten workflow → „Run workflow".
+# =============================================================================
+
+name: Supabase keep-alive
+
+on:
+  schedule:
+    # Co 5 dni o 06:00 UTC. (Dzień miesiąca resetuje się co miesiąc — przerwy
+    # i tak pozostają < 7 dni, więc projekt się nie uśpi.)
+    - cron: '0 6 */5 * *'
+  workflow_dispatch: {}   # pozwala uruchomić ręcznie z zakładki Actions
+
+permissions:
+  contents: read
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Supabase REST endpoint
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+        run: |
+          set -euo pipefail
+
+          if [ -z "${SUPABASE_URL:-}" ] || [ -z "${SUPABASE_ANON_KEY:-}" ]; then
+            echo "::error::Brak sekretów SUPABASE_URL / SUPABASE_ANON_KEY."
+            echo "Ustaw je w Settings → Secrets and variables → Actions."
+            exit 1
+          fi
+
+          # Usuń ewentualny końcowy slash z URL-a
+          BASE="${SUPABASE_URL%/}"
+
+          # Jedno lekkie żądanie do REST API budzi/utrzymuje projekt.
+          STATUS=$(curl -s -o /dev/null -w '%{http_code}' \
+            -H "apikey: ${SUPABASE_ANON_KEY}" \
+            -H "Authorization: Bearer ${SUPABASE_ANON_KEY}" \
+            "${BASE}/rest/v1/")
+
+          echo "HTTP status: ${STATUS}"
+
+          # 200/2xx oraz 401/404 oznaczają, że projekt ODPOWIEDZIAŁ (jest żywy).
+          # Tylko brak odpowiedzi / 5xx traktujemy jako błąd.
+          case "${STATUS}" in
+            2*|401|404)
+              echo "Projekt Supabase odpowiada — keep-alive OK."
+              ;;
+            *)
+              echo "::error::Nieoczekiwany status ${STATUS} — projekt mógł nie odpowiedzieć."
+              exit 1
+              ;;
+          esac
