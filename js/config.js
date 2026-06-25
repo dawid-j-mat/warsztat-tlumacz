@@ -18,7 +18,7 @@ window.APP_CONFIG = {
   //  Klucz anon jest bezpieczny w kodzie front-endu – takie jest jego przeznaczenie.
   // ---------------------------------------------------------------------------
   SUPABASE_URL: 'https://unbbztvililescvfplqk.supabase.co',
-  SUPABASE_ANON_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVuYmJ6dHZpbGlsZXNjdmZwbHFrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIzMjE0NjYsImV4cCI6MjA5Nzg5NzQ2Nn0.0fbSzDzMY1waJd4zoIwoPOhQl3RmdutfGSY-WK6h3z0',
+  SUPABASE_ANON_KEY: 'sb_publishable_rY_RudCASdzEQX2Ff8B2iQ_0wk6bTDz',
 
   // Stała nazwa kanału broadcast. Jeden kanał = jeden wspólny link.
   // (Na przyszłość: można tu wstawić kod sesji, by mieć wiele równoległych warsztatów.)
