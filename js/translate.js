@@ -105,8 +105,8 @@
   //    mode 'lower'  : darmowe (wg config) -> Higher (jeśli klucz) -> PL
   //    mode 'higher' : Higher -> darmowe (wg config) -> PL
   // --------------------------------------------------------------------------
-  function buildCascade(mode, hasKey) {
-    var free = (CFG.FREE_ENGINE_ORDER || ['lingva', 'mymemory']).slice();
+  function buildCascade(mode, hasKey, freeOrder) {
+    var free = (freeOrder || CFG.FREE_ENGINE_ORDER || ['lingva', 'mymemory']).slice();
     var steps = [];
     if (mode === 'higher' && hasKey) steps.push('higher');
     free.forEach(function (name) { if (ENGINES[name]) steps.push(name); });
@@ -126,7 +126,7 @@
     var clean = (text || '').trim();
     if (!clean) return { text: '', source: 'pl', pl: '', failures: 0 };
 
-    var steps = buildCascade(mode, hasKey);
+    var steps = buildCascade(mode, hasKey, opts.freeOrder);
     var failures = 0;
     var errors = [];
 
