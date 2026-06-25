@@ -123,7 +123,7 @@
   $plToggle.addEventListener('click', function () {
     showPL = !showPL;
     $plToggle.classList.toggle('active', showPL);
-    $plToggle.textContent = showPL ? 'Ukryj PL' : 'Pokaż PL';
+    $plToggle.textContent = showPL ? 'Hide PL' : 'Show PL';
     sentences.forEach(togglePLOn);
   });
 
@@ -172,19 +172,19 @@
     console.log('[listener] runLive() – tryb realny (bez ?demo)');
     if (typeof window.supabase === 'undefined') {
       console.warn('[listener] STOP: brak biblioteki @supabase/supabase-js (window.supabase undefined)');
-      setConn('off', 'brak biblioteki');
+      setConn('off', 'no library');
       return;
     }
     if (configMissing()) {
       console.warn('[listener] STOP: brak/placeholder kluczy Supabase w js/config.js');
-      setConn('off', 'brak kluczy');
-      $idle.innerHTML = 'Konfiguracja niekompletna.<br>' +
-        '<span style="font-size:0.7em;opacity:0.8">Wklej klucze Supabase w js/config.js ' +
-        '(albo otwórz ten ekran z ?demo, by zobaczyć podgląd układu).</span>';
+      setConn('off', 'no keys');
+      $idle.innerHTML = 'Configuration incomplete.<br>' +
+        '<span style="font-size:0.7em;opacity:0.8">Paste your Supabase keys in js/config.js ' +
+        '(or open this screen with ?demo to preview the layout).</span>';
       return;
     }
 
-    setConn('retry', 'łączę…');
+    setConn('retry', 'connecting…');
     var channelName = CFG.CHANNEL || 'workshop-live';
     var client = window.supabase.createClient(CFG.SUPABASE_URL, CFG.SUPABASE_ANON_KEY);
     var channel = client.channel(channelName, {
@@ -207,13 +207,13 @@
       console.log('[listener] channel status:', status, err ? '| error: ' + (err.message || err) : '');
       if (err) console.error('[listener] channel error detail:', err);
       if (status === 'SUBSCRIBED') {
-        setConn('ok', 'połączono');
+        setConn('ok', 'connected');
         // zgłoś obecność, by mówca widział licznik słuchaczy
         channel.track({ role: 'listener', at: Date.now() });
       } else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') {
-        setConn('retry', 'ponawiam…');
+        setConn('retry', 'retrying…');
       } else if (status === 'CLOSED') {
-        setConn('off', 'rozłączono');
+        setConn('off', 'disconnected');
       }
     });
 

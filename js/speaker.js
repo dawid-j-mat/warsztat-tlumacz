@@ -96,7 +96,7 @@
   // ==========================================================================
   //  Tłumaczenie + bufor zdań
   // ==========================================================================
-  var SRC_LABEL = { lingva: 'Lingva', mymemory: 'MyMemory', higher: 'Higher (Claude)', pl: 'oryginał PL' };
+  var SRC_LABEL = { lingva: 'Lingva', mymemory: 'MyMemory', higher: 'Higher (paid API)', pl: 'oryginał PL' };
 
   function setSource(src) {
     $srcVal.textContent = SRC_LABEL[src] || src;
