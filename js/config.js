@@ -31,32 +31,29 @@ window.APP_CONFIG = {
   //  Aby zamienić ich kolejność (np. po teście jakości na realnym materiale),
   //  zmień TĘ JEDNĄ LINIĘ. Dozwolone wartości w tablicy: 'lingva', 'mymemory'.
   //
-  //    ['mymemory']            → tylko MyMemory (domyślnie – patrz uwaga niżej)
+  //    ['mymemory']            → tylko MyMemory
+  //    ['lingva', 'mymemory']  → Lingva pierwsza, MyMemory jako fallback (domyślnie)
   //    ['mymemory', 'lingva']  → MyMemory pierwszy, Lingva jako zapas
-  //    ['lingva', 'mymemory']  → Lingva pierwszy, potem MyMemory
   //
-  //  UWAGA (stan na test 2026-06): publiczne instancje Lingva zwracają z
-  //  przeglądarki 500/403 + błędy CORS — z front-endu są TRWALE NIEDOSTĘPNE.
-  //  Trzymanie Lingvy w kaskadzie tylko opóźnia tłumaczenie (kilka nieudanych
-  //  prób), więc domyślnie zostaje sam MyMemory (zweryfikowany, działa).
-  //  Gdy znajdziesz instancję Lingva z poprawnym CORS, dopisz ją na końcu:
-  //  ['mymemory', 'lingva'] — wróci dywersyfikacja silników bez ryzyka opóźnień
-  //  (Lingva próbowana dopiero, gdy MyMemory zawiedzie).
+  //  STAN (2026-06): stopniem 1 jest WŁASNA instancja Lingva (patrz sekcja 3),
+  //  która działa stabilnie z poprawnym CORS. MyMemory zostaje jako stopień 2
+  //  (fallback) — gdy Lingva zwróci błąd lub timeout, kaskada płynnie przechodzi
+  //  do MyMemory. Publiczne instancje Lingva (martwe: 500/403/CORS) usunięto.
   // ---------------------------------------------------------------------------
-  FREE_ENGINE_ORDER: ['mymemory'],
+  FREE_ENGINE_ORDER: ['lingva', 'mymemory'],
 
   // ---------------------------------------------------------------------------
   //  3. LINGVA – lista instancji (fasada na Google Translate, bez klucza)
   // ---------------------------------------------------------------------------
-  //  Publiczne instancje społecznościowe bywają niestabilne. Apka próbuje
-  //  kolejnej z listy, jeśli poprzednia nie odpowie. Pierwsza = główna.
-  //  Jeśli któraś przestanie działać – po prostu zmień kolejność / dopisz nową.
+  //  Stopień 1 kaskady to WŁASNA, samodzielnie postawiona instancja Lingva
+  //  (Vercel). Endpoint REST: [URL]/api/v1/pl/en/[tekst] → JSON z polem
+  //  translation. Apka próbuje kolejnej z listy, jeśli poprzednia nie odpowie
+  //  (pierwsza = główna), więc tu można dopisać własne instancje zapasowe.
+  //  Publiczne instancje społecznościowe (lingva.ml itd.) były martwe
+  //  (500/403/CORS) i zostały usunięte.
   // ---------------------------------------------------------------------------
   LINGVA_INSTANCES: [
-    'https://lingva.ml',
-    'https://lingva.lunar.icu',
-    'https://translate.plausibility.cloud',
-    'https://lingva.garudalinux.org',
+    'https://lingva-djm.vercel.app',
   ],
 
   // ---------------------------------------------------------------------------
