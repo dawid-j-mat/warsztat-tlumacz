@@ -1,30 +1,30 @@
 <!DOCTYPE html>
-<html lang="pl">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Słuchacz · Tłumacz na żywo</title>
+<title>Listener · Live Translator</title>
 <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
   <header class="tele-header">
     <div class="brand">
-      <h1>Tłumacz na żywo</h1>
+      <h1>Live Translator</h1>
     </div>
     <div class="controls">
-      <div class="toggle-group" role="group" aria-label="Pokaż oryginał">
-        <button id="plToggle" type="button">Pokaż PL</button>
+      <div class="toggle-group" role="group" aria-label="Show original">
+        <button id="plToggle" type="button">Show PL</button>
       </div>
-      <span class="conn off" id="conn" title="Stan połączenia">
-        <span class="dot"></span><span id="connText">łączę…</span>
+      <span class="conn off" id="conn" title="Connection status">
+        <span class="dot"></span><span id="connText">connecting…</span>
       </span>
     </div>
   </header>
 
   <main class="tele-main" id="tele">
     <div class="tele-idle" id="idle">
-      Czekam na rozpoczęcie wypowiedzi…<br>
-      <span style="font-size:0.7em;opacity:0.8">Tłumaczenie pojawi się tutaj automatycznie.</span>
+      Waiting for the talk to begin…<br>
+      <span style="font-size:0.7em;opacity:0.8">The translation will appear here automatically.</span>
     </div>
   </main>
 
