@@ -156,9 +156,9 @@ po prostu usuń ten plik.
 
 Waniliowy HTML / CSS / JS, bez frameworka. Jedyna zależność: biblioteka
 [`@supabase/supabase-js`](https://github.com/supabase/supabase-js) ładowana z CDN,
-**przypięta na sztywno do wersji `2.49.7`**. Nie podnoś do `@2`/`@latest` bez
-testu Realtime: linie 2.107+ mają regresję WebSocketu (`WebSocket is closed
-before the connection is established` / `CHANNEL_ERROR` w pętli, supabase-js #1442).
+**przypięta do wersji `2.108.2`**. Wymagana wersja **≥ 2.50**, bo projekt używa
+nowego klucza **publishable** (`sb_publishable_…`) — starsze linie (np. 2.49)
+nie wysyłają go poprawnie do Realtime i kanał kończy się `CHANNEL_ERROR`.
 Rozpoznawanie mowy: Web Speech API (`pl-PL`). Tłumaczenie: MyMemory (darmowe,
 domyślne) oraz opcjonalnie Claude API (Higher); Lingva dostępna, ale wyłączona
 (CORS).

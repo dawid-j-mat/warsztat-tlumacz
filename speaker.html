@@ -53,10 +53,10 @@
     Powtarzaj pytania z sali do mikrofonu, zanim odpowiesz.
   </p>
 
-  <!-- Wersja PRZYPIĘTA na sztywno. NIE wracać do @2 / @latest: nowe linie
-       (2.107+) mają regresję WebSocketu — Realtime pada "WebSocket is closed
-       before the connection is established" / CHANNEL_ERROR (supabase-js #1442). -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.7"></script>
+  <!-- Wersja PRZYPIĘTA do 2.108.2: obsługuje publishable key (sb_publishable_)
+       w Realtime. Starsze linie (≤2.49) NIE wysyłają publishable key poprawnie
+       do WebSocketu → CHANNEL_ERROR. Nie schodź poniżej ~2.50. -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.108.2"></script>
   <script src="js/config.js"></script>
   <script src="js/translate.js"></script>
   <script src="js/speaker.js"></script>
