@@ -25,6 +25,17 @@
   var lastTs = 0;           // czas ostatniego zdania (do domykania akapitu)
   var sentences = [];       // [{en, pl, newPara, el}] – tylko widoczne
 
+  // --- Diagnostyka (widoczna w konsoli słuchacza) ---
+  console.log('[listener] init', {
+    search: window.location.search,
+    hasSupabaseLib: typeof window.supabase !== 'undefined',
+    channel: CFG.CHANNEL,
+    urlSet: !!(CFG.SUPABASE_URL && CFG.SUPABASE_URL.indexOf('TWOJ_') !== 0),
+    keySet: !!(CFG.SUPABASE_ANON_KEY && CFG.SUPABASE_ANON_KEY.indexOf('TWOJ_') !== 0),
+    // pokaż sam początek URL-a, żeby wychwycić błędne /rest/v1 itp. (bez sekretów)
+    urlPreview: (CFG.SUPABASE_URL || '').slice(0, 40)
+  });
+
   // --------------------------------------------------------------------------
   //  Render: pokaż ostatnie MAX zdań, przypisz klasy s0 (najnowsze) … s2
   // --------------------------------------------------------------------------
@@ -158,11 +169,14 @@
   }
 
   function runLive() {
+    console.log('[listener] runLive() – tryb realny (bez ?demo)');
     if (typeof window.supabase === 'undefined') {
+      console.warn('[listener] STOP: brak biblioteki @supabase/supabase-js (window.supabase undefined)');
       setConn('off', 'brak biblioteki');
       return;
     }
     if (configMissing()) {
+      console.warn('[listener] STOP: brak/placeholder kluczy Supabase w js/config.js');
       setConn('off', 'brak kluczy');
       $idle.innerHTML = 'Konfiguracja niekompletna.<br>' +
         '<span style="font-size:0.7em;opacity:0.8">Wklej klucze Supabase w js/config.js ' +
@@ -171,21 +185,26 @@
     }
 
     setConn('retry', 'łączę…');
+    var channelName = CFG.CHANNEL || 'workshop-live';
     var client = window.supabase.createClient(CFG.SUPABASE_URL, CFG.SUPABASE_ANON_KEY);
-    var channel = client.channel(CFG.CHANNEL || 'workshop-live', {
+    var channel = client.channel(channelName, {
       config: { broadcast: { self: false }, presence: { key: 'listener-' + Math.random().toString(36).slice(2) } }
     });
 
     channel.on('broadcast', { event: 'sentence' }, function (msg) {
+      console.log('[listener] odebrano broadcast "sentence":', msg && msg.payload);
       var p = msg.payload || {};
       if (p.en) addSentence(p.en, p.pl);
     });
 
     channel.on('broadcast', { event: 'clear' }, function () {
+      console.log('[listener] odebrano broadcast "clear"');
       clearAll();
     });
 
+    console.log('[listener] subscribing to', channelName);
     channel.subscribe(function (status) {
+      console.log('[listener] channel status:', status);
       if (status === 'SUBSCRIBED') {
         setConn('ok', 'połączono');
         // zgłoś obecność, by mówca widział licznik słuchaczy
@@ -206,7 +225,10 @@
   // --------------------------------------------------------------------------
   //  Start
   // --------------------------------------------------------------------------
-  if (/[?&]demo\b/.test(window.location.search)) {
+  // Tryb demo TYLKO gdy ?demo jest jawnie w query stringu.
+  var isDemo = new URLSearchParams(window.location.search).has('demo');
+  console.log('[listener] dispatch →', isDemo ? 'DEMO (atrapa)' : 'LIVE (Supabase)');
+  if (isDemo) {
     runDemo();
   } else {
     runLive();

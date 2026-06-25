@@ -31,10 +31,19 @@ window.APP_CONFIG = {
   //  Aby zamienić ich kolejność (np. po teście jakości na realnym materiale),
   //  zmień TĘ JEDNĄ LINIĘ. Dozwolone wartości w tablicy: 'lingva', 'mymemory'.
   //
-  //    ['lingva', 'mymemory']  → najpierw Lingva (Google Translate), potem MyMemory
-  //    ['mymemory', 'lingva']  → najpierw MyMemory, potem Lingva
+  //    ['mymemory']            → tylko MyMemory (domyślnie – patrz uwaga niżej)
+  //    ['mymemory', 'lingva']  → MyMemory pierwszy, Lingva jako zapas
+  //    ['lingva', 'mymemory']  → Lingva pierwszy, potem MyMemory
+  //
+  //  UWAGA (stan na test 2026-06): publiczne instancje Lingva zwracają z
+  //  przeglądarki 500/403 + błędy CORS — z front-endu są TRWALE NIEDOSTĘPNE.
+  //  Trzymanie Lingvy w kaskadzie tylko opóźnia tłumaczenie (kilka nieudanych
+  //  prób), więc domyślnie zostaje sam MyMemory (zweryfikowany, działa).
+  //  Gdy znajdziesz instancję Lingva z poprawnym CORS, dopisz ją na końcu:
+  //  ['mymemory', 'lingva'] — wróci dywersyfikacja silników bez ryzyka opóźnień
+  //  (Lingva próbowana dopiero, gdy MyMemory zawiedzie).
   // ---------------------------------------------------------------------------
-  FREE_ENGINE_ORDER: ['lingva', 'mymemory'],
+  FREE_ENGINE_ORDER: ['mymemory'],
 
   // ---------------------------------------------------------------------------
   //  3. LINGVA – lista instancji (fasada na Google Translate, bez klucza)
