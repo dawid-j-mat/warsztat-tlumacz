@@ -51,18 +51,28 @@
       return;
     }
 
-    // --- TEST 1: REST (PostgREST) — sprawdza, czy klucz działa dla REST ---
-    var restRow = add('warn', 'TEST 1 · REST /rest/v1/', 'sprawdzam…');
-    fetch(CFG.SUPABASE_URL.replace(/\/+$/, '') + '/rest/v1/', {
-      headers: { apikey: CFG.SUPABASE_ANON_KEY, Authorization: 'Bearer ' + CFG.SUPABASE_ANON_KEY }
-    }).then(function (r) {
-      restRow.className = 'row ' + (r.ok || r.status === 404 ? 'ok' : 'err');
-      restRow.innerHTML = '<span class="k">TEST 1 · REST</span> — HTTP ' + r.status +
-        (r.ok || r.status === 404 ? ' (usługa REST odpowiada, klucz akceptowany)' : ' (REST odrzuca — problem z kluczem/projektem)');
-    }).catch(function (e) {
-      restRow.className = 'row err';
-      restRow.innerHTML = '<span class="k">TEST 1 · REST</span> — błąd sieci: ' + esc(e.message) + ' (projekt nieosiągalny?)';
-    });
+    // --- TEST 1: sonduj różne warianty nagłówków/endpointów, by odróżnić
+    //     "zły klucz" od "zły sposób wysłania klucza" (Bearer vs apikey) ---
+    var BASE = CFG.SUPABASE_URL.replace(/\/+$/, '');
+    var KEY = CFG.SUPABASE_ANON_KEY;
+    function probe(label, url, headers) {
+      var row = add('warn', label, 'sprawdzam…');
+      fetch(url, { headers: headers }).then(function (r) {
+        var good = r.ok || r.status === 404; // 200/404 = brama akceptuje klucz
+        row.className = 'row ' + (good ? 'ok' : 'err');
+        row.innerHTML = '<span class="k">' + label + '</span> — HTTP ' + r.status +
+          (good ? ' ✓ klucz akceptowany' : (r.status === 401 ? ' ✗ 401 (odrzucony)' : ' ✗'));
+      }).catch(function (e) {
+        row.className = 'row err';
+        row.innerHTML = '<span class="k">' + label + '</span> — błąd sieci: ' + esc(e.message);
+      });
+    }
+    // 1a: REST tylko z apikey (poprawny sposób dla publishable key)
+    probe('TEST 1a · REST apikey-only', BASE + '/rest/v1/', { apikey: KEY });
+    // 1b: REST z apikey + Authorization Bearer (jak robi to stary klient – może 401 dla publishable)
+    probe('TEST 1b · REST apikey+Bearer', BASE + '/rest/v1/', { apikey: KEY, Authorization: 'Bearer ' + KEY });
+    // 1c: GoTrue settings – wymaga ważnego apikey, niezależne od uprawnień tabel
+    probe('TEST 1c · auth/v1/settings', BASE + '/auth/v1/settings', { apikey: KEY });
 
     // --- TEST 2: Realtime WebSocket — to jest sedno problemu ---
     add('warn', 'TEST 2 · Realtime WebSocket', 'próbuję subskrybować kanał „' + esc(CFG.CHANNEL || 'workshop-live') + '”…');
