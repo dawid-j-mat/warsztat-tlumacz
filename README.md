@@ -155,6 +155,10 @@ po prostu usuń ten plik.
 ## Stos technologiczny
 
 Waniliowy HTML / CSS / JS, bez frameworka. Jedyna zależność: biblioteka
-[`@supabase/supabase-js`](https://github.com/supabase/supabase-js) ładowana z CDN.
-Rozpoznawanie mowy: Web Speech API (`pl-PL`). Tłumaczenie: Lingva + MyMemory
-(darmowe) oraz opcjonalnie Claude API (Higher).
+[`@supabase/supabase-js`](https://github.com/supabase/supabase-js) ładowana z CDN,
+**przypięta na sztywno do wersji `2.49.7`**. Nie podnoś do `@2`/`@latest` bez
+testu Realtime: linie 2.107+ mają regresję WebSocketu (`WebSocket is closed
+before the connection is established` / `CHANNEL_ERROR` w pętli, supabase-js #1442).
+Rozpoznawanie mowy: Web Speech API (`pl-PL`). Tłumaczenie: MyMemory (darmowe,
+domyślne) oraz opcjonalnie Claude API (Higher); Lingva dostępna, ale wyłączona
+(CORS).

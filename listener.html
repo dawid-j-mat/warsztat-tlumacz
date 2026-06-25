@@ -33,7 +33,10 @@
     Dopisz do adresu  ?demo  (np. listener.html?demo), aby zobaczyć widok
     teleprompter na atrapie danych – przydatne do oceny czcionki i układu.
   -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <!-- Wersja PRZYPIĘTA na sztywno. NIE wracać do @2 / @latest: nowe linie
+       (2.107+) mają regresję WebSocketu — Realtime pada "WebSocket is closed
+       before the connection is established" / CHANNEL_ERROR (supabase-js #1442). -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.7"></script>
   <script src="js/config.js"></script>
   <script src="js/listener.js"></script>
 </body>
