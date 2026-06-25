@@ -70,7 +70,9 @@
       $listenerVal.textContent = count;
     });
 
-    channel.subscribe(function (status) {
+    channel.subscribe(function (status, err) {
+      console.log('[speaker] channel status:', status, err ? '| error: ' + (err.message || err) : '');
+      if (err) console.error('[speaker] channel error detail:', err);
       if (status === 'SUBSCRIBED') {
         setConn('ok', 'połączono');
         channel.track({ role: 'speaker', at: Date.now() });

@@ -203,8 +203,9 @@
     });
 
     console.log('[listener] subscribing to', channelName);
-    channel.subscribe(function (status) {
-      console.log('[listener] channel status:', status);
+    channel.subscribe(function (status, err) {
+      console.log('[listener] channel status:', status, err ? '| error: ' + (err.message || err) : '');
+      if (err) console.error('[listener] channel error detail:', err);
       if (status === 'SUBSCRIBED') {
         setConn('ok', 'połączono');
         // zgłoś obecność, by mówca widział licznik słuchaczy
