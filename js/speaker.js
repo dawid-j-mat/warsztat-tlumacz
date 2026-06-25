@@ -10,6 +10,7 @@
 
   // --- Stan ---
   var quality = 'lower';
+  var freeEngine = 'lingva'; // który darmowy silnik próbować pierwszy (drugi = fallback)
   var listening = false;
   var recognition = null;
   var errorCount = 0;
@@ -120,7 +121,9 @@
     $output.scrollTop = $output.scrollHeight;
 
     var apiKey = $apiKey.value;
-    var result = await window.Translator.translate(plSentence, { mode: quality, apiKey: apiKey });
+    // Wybrany silnik pierwszy, drugi jako fallback (badge "źródło" pokazuje, który zadziałał).
+    var freeOrder = (freeEngine === 'mymemory') ? ['mymemory', 'lingva'] : ['lingva', 'mymemory'];
+    var result = await window.Translator.translate(plSentence, { mode: quality, apiKey: apiKey, freeOrder: freeOrder });
 
     if (result.failures) bumpErrors(result.failures);
     setSource(result.source);
@@ -142,6 +145,13 @@
     document.getElementById('q-higher').classList.toggle('active', q === 'higher');
     $apiKeyRow.classList.toggle('show', q === 'higher');
     setStatus(q === 'higher' ? 'Tryb Higher — wpisz klucz API' : 'Tryb Lower — gotowy');
+  };
+
+  // Wybór darmowego silnika (stopień 1). Drugi z pary zostaje jako fallback.
+  window.setEngine = function (e) {
+    freeEngine = e;
+    document.getElementById('e-lingva').classList.toggle('active', e === 'lingva');
+    document.getElementById('e-mymemory').classList.toggle('active', e === 'mymemory');
   };
 
   function setStatus(msg, isErr) {
@@ -250,6 +260,7 @@
   // ==========================================================================
   //  Start
   // ==========================================================================
+  setEngine('lingva');
   setQuality('lower');
   initSupabase();
 })();
