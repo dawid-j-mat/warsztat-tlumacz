@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Diagnostyka Realtime · Tłumacz na żywo</title>
+<style>
+  body { font-family: -apple-system, Segoe UI, Arial, sans-serif; background:#16335E; color:#F2EFE9; margin:0; padding:20px; line-height:1.5; }
+  h1 { font-size:1.2rem; }
+  #log { font-size:0.95rem; }
+  .row { padding:10px 12px; margin:8px 0; border-radius:8px; background:rgba(0,0,0,0.22); border-left:4px solid #6BA5A8; word-break:break-word; }
+  .ok   { border-left-color:#6FBF8E; }
+  .err  { border-left-color:#D77A6B; }
+  .warn { border-left-color:#D8A24A; }
+  .k { color:#7FBFC2; font-weight:700; }
+  code { background:rgba(0,0,0,0.3); padding:1px 5px; border-radius:4px; }
+</style>
+</head>
+<body>
+  <h1>Diagnostyka połączenia Realtime</h1>
+  <p>Ta strona testuje samo połączenie z Supabase. Przeczytaj kolorowe wiersze niżej
+     (zielony = OK, czerwony = błąd) i prześlij je / zrób zrzut ekranu.</p>
+  <div id="log"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/config.js"></script>
+  <script>
+  (function () {
+    var logEl = document.getElementById('log');
+    function add(cls, label, detail) {
+      var d = document.createElement('div');
+      d.className = 'row ' + (cls || '');
+      d.innerHTML = '<span class="k">' + label + '</span>' + (detail ? ' — ' + detail : '');
+      logEl.appendChild(d);
+      return d;
+    }
+    function esc(s){ return String(s).replace(/[<>&]/g, function(c){return ({'<':'&lt;','>':'&gt;','&':'&amp;'})[c];}); }
+
+    var CFG = window.APP_CONFIG || {};
+    var URL_OK = CFG.SUPABASE_URL && CFG.SUPABASE_URL.indexOf('TWOJ_') !== 0;
+    var KEY_OK = CFG.SUPABASE_ANON_KEY && CFG.SUPABASE_ANON_KEY.indexOf('TWOJ_') !== 0;
+
+    add('', 'Wersja diagnostyki', 'rt-test v1 (jeśli tego nie widzisz w innych plikach, deploy działa)');
+    add(URL_OK ? 'ok' : 'err', 'SUPABASE_URL', URL_OK ? esc(CFG.SUPABASE_URL) : 'BRAK / placeholder');
+    add(KEY_OK ? 'ok' : 'err', 'SUPABASE_ANON_KEY', KEY_OK ? 'ustawiony (' + esc(CFG.SUPABASE_ANON_KEY.slice(0,12)) + '…, dł. ' + CFG.SUPABASE_ANON_KEY.length + ')' : 'BRAK / placeholder');
+    add(typeof window.supabase !== 'undefined' ? 'ok' : 'err', 'Biblioteka supabase-js', typeof window.supabase !== 'undefined' ? 'załadowana' : 'BRAK');
+
+    if (!URL_OK || !KEY_OK || typeof window.supabase === 'undefined') {
+      add('err', 'STOP', 'brak kluczy lub biblioteki — popraw js/config.js');
+      return;
+    }
+
+    // --- TEST 1: REST (PostgREST) — sprawdza, czy klucz działa dla REST ---
+    var restRow = add('warn', 'TEST 1 · REST /rest/v1/', 'sprawdzam…');
+    fetch(CFG.SUPABASE_URL.replace(/\/+$/, '') + '/rest/v1/', {
+      headers: { apikey: CFG.SUPABASE_ANON_KEY, Authorization: 'Bearer ' + CFG.SUPABASE_ANON_KEY }
+    }).then(function (r) {
+      restRow.className = 'row ' + (r.ok || r.status === 404 ? 'ok' : 'err');
+      restRow.innerHTML = '<span class="k">TEST 1 · REST</span> — HTTP ' + r.status +
+        (r.ok || r.status === 404 ? ' (usługa REST odpowiada, klucz akceptowany)' : ' (REST odrzuca — problem z kluczem/projektem)');
+    }).catch(function (e) {
+      restRow.className = 'row err';
+      restRow.innerHTML = '<span class="k">TEST 1 · REST</span> — błąd sieci: ' + esc(e.message) + ' (projekt nieosiągalny?)';
+    });
+
+    // --- TEST 2: Realtime WebSocket — to jest sedno problemu ---
+    add('warn', 'TEST 2 · Realtime WebSocket', 'próbuję subskrybować kanał „' + esc(CFG.CHANNEL || 'workshop-live') + '”…');
+    var client = window.supabase.createClient(CFG.SUPABASE_URL, CFG.SUPABASE_ANON_KEY);
+
+    // Niskopoziomowe zdarzenia gniazda (jeśli dostępne w tej wersji klienta)
+    try {
+      if (client.realtime && client.realtime.onError) {
+        client.realtime.onError(function (e) { add('err', 'WS onError', esc((e && (e.message || e.type)) || 'socket error')); });
+      }
+      if (client.realtime && client.realtime.onClose) {
+        client.realtime.onClose(function (e) { add('warn', 'WS onClose', 'code=' + esc(e && e.code) + ' reason=' + esc((e && e.reason) || '(brak)')); });
+      }
+    } catch (_) {}
+
+    var ch = client.channel(CFG.CHANNEL || 'workshop-live', { config: { broadcast: { self: false } } });
+    var reported = false;
+    ch.subscribe(function (status, err) {
+      var cls = status === 'SUBSCRIBED' ? 'ok' : (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT' ? 'err' : 'warn');
+      add(cls, 'TEST 2 · status', esc(status) + (err ? ' | <b>POWÓD: ' + esc(err.message || String(err)) + '</b>' : ''));
+      if (status === 'SUBSCRIBED' && !reported) {
+        reported = true;
+        add('ok', 'WYNIK', 'Realtime DZIAŁA. Problem był gdzie indziej (cache/stary build apki).');
+      }
+      if ((status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') && !reported) {
+        reported = true;
+        add('err', 'WYNIK', 'Realtime ODRZUCA połączenie. Powód powyżej (jeśli pusty — to poziom transportu/handshake, nie kanału). Najczęściej: klucz/JWT signing keys, Realtime wyłączony, albo projekt uśpiony.');
+      }
+    });
+
+    setTimeout(function () {
+      if (!reported) add('warn', 'TEST 2 · timeout', 'brak statusu po 12 s — WebSocket nie nawiązuje połączenia (projekt nieosiągalny / handshake odrzucony).');
+    }, 12000);
+  })();
+  </script>
+</body>
+</html>
